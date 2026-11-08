@@ -13,9 +13,14 @@ jobs:
         with:
           distribution: temurin
           java-version: 17
-      - uses: gradle/actions/setup-gradle@v3
-        with:
-          gradle-version: 8.1.1
+      - name: Install Gradle 8.1.1 (with retries)
+        run: |
+          for i in 1 2 3 4 5; do
+            wget -q https://services.gradle.org/distributions/gradle-8.1.1-bin.zip -O gradle.zip && break
+            echo "download failed, retry $i"; sleep 15
+          done
+          unzip -q gradle.zip -d "$HOME"
+          echo "$HOME/gradle-8.1.1/bin" >> "$GITHUB_PATH"
       - name: Build
         run: gradle build --no-daemon
       - uses: actions/upload-artifact@v4
